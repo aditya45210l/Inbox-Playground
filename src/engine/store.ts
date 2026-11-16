@@ -64,12 +64,15 @@ interface State {
   wfDone: number[]
   unread: number
   lastOptions: string[]
+  /** plays the scripted demo conversation by itself */
   autoMode: boolean
+  /** each stage waits for the user to press Next */
+  stepMode: boolean
   waiting: boolean
   nextLabel: string
 }
 
-const initial = (): Omit<State, 'channel' | 'features' | 'autoMode'> => ({
+const initial = (): Omit<State, 'channel' | 'features' | 'autoMode' | 'stepMode'> => ({
   phase: 'idle',
   paused: false,
   busy: false,
@@ -95,6 +98,7 @@ export const useDemo = create<State>(() => ({
   channel: 'whatsapp',
   features: { buttons: true, voice: false, spintax: false, drip: false, autoReply: true },
   autoMode: true,
+  stepMode: false,
   ...initial(),
 }))
 
@@ -129,7 +133,7 @@ function tick() {
     return
   }
   const step = queue[idx]
-  if (step.gate && !get().autoMode) {
+  if (step.gate && get().stepMode) {
     set({ waiting: true, nextLabel: step.gate })
     return
   }
@@ -576,14 +580,21 @@ export function setAutoMode(on: boolean) {
   if (s.autoMode === on) return
   set({ autoMode: on })
   if (on) {
-    if (s.waiting) nextStep() // continue the message that was waiting for "Next"
-    else if (!s.busy && s.messages.length === 0) startAuto() // empty chat: play the demo
+    if (!s.busy && s.messages.length === 0) startAuto() // empty chat: play the demo
     return
   }
   // Turning auto-play off while the scripted demo is running: don't leave the
   // user stuck stepping through a script they didn't start. Complete the current
   // message, stop the script, and let them type their own.
   if (s.phase === 'auto' && s.busy) finishNow()
+}
+
+/** Step-by-step: every stage waits for "Next". Turning it off resumes anything waiting. */
+export function setStepMode(on: boolean) {
+  const s = get()
+  if (s.stepMode === on) return
+  set({ stepMode: on })
+  if (!on && s.waiting) nextStep()
 }
 
 export function resetDemo() {

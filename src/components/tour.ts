@@ -10,7 +10,7 @@ const STEPS: DriveStep[] = [
     element: '[data-tour="phone"]',
     popover: {
       title: "1. Your customer's phone",
-      description: 'This is what your customer sees. Type a message at the bottom and tap the green send button, or tap one of the suggestions below the phone.',
+      description: 'This is what your customer sees. Type a message at the bottom and tap the green send button, or tap one of the "Try saying" suggestions.',
       side: 'right',
     },
   },
@@ -41,8 +41,8 @@ const STEPS: DriveStep[] = [
   {
     element: '[data-tour="controls"]',
     popover: {
-      title: '5. Go at your own pace',
-      description: 'Auto-play is off now, so you press Next (or the N key) to move the message one step at a time. Switch Auto-play on to watch it run by itself.',
+      title: '5. Watch or chat',
+      description: 'Auto-play runs a demo conversation by itself. It is off now, so you can chat yourself and everything happens automatically. Want to go slower? Turn on Step-by-step in Options and press Next.',
       side: 'bottom',
     },
   },

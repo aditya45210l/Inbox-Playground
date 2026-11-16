@@ -77,7 +77,7 @@ export default function Walkthrough() {
 
         <div className="mt-4 flex flex-col gap-3 rounded-lg border bg-card p-2.5 shadow-sm sm:flex-row sm:items-center">
           <div className="flex flex-wrap items-center gap-2">
-            <ModeControls />
+            <ModeControls withStepToggle />
             <Button variant="outline" size="sm" onClick={togglePause} disabled={!busy}>
               {paused ? <Play size={13} /> : <Pause size={13} />} {paused ? 'Resume' : 'Pause'}
             </Button>

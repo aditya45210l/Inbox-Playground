@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { GraduationCap, RotateCcw, SlidersHorizontal } from 'lucide-react'
 import { CHANNELS, type Channel } from '../engine/data'
-import { nextStep, setAutoMode, setChannel, startAuto, toggleFeature, useDemo, type Features } from '../engine/store'
+import { nextStep, setAutoMode, setChannel, setStepMode, startAuto, toggleFeature, useDemo, type Features } from '../engine/store'
 import { toggleTheme } from '../lib/theme'
 import { PhoneMock } from '../components/PhoneMock'
 import { CrmApp } from '../components/CrmApp'
@@ -18,8 +18,9 @@ const FEATURES: { k: keyof Features; label: string; hint: string }[] = [
 ]
 
 const SHORTCUTS: [string, string][] = [
-  ['N', 'Next step'],
   ['A', 'Auto-play on / off'],
+  ['S', 'Step-by-step on / off'],
+  ['N', 'Next step (step-by-step)'],
   ['1 2 3', 'WhatsApp / iMessage / SMS'],
   ['R', 'Replay the demo'],
   ['T', 'Light / dark theme'],
@@ -38,6 +39,7 @@ function useShortcuts() {
       const k = e.key.toLowerCase()
       if (k === 'n' || e.key === 'ArrowRight') nextStep()
       else if (k === 'a') setAutoMode(!useDemo.getState().autoMode)
+      else if (k === 's') setStepMode(!useDemo.getState().stepMode)
       else if (k === 'r') {
         setAutoMode(true)
         startAuto()
@@ -59,6 +61,7 @@ export default function Playground() {
   const phase = useDemo((s) => s.phase)
   const busy = useDemo((s) => s.busy)
   const autoMode = useDemo((s) => s.autoMode)
+  const stepMode = useDemo((s) => s.stepMode)
   const waiting = useDemo((s) => s.waiting)
   const nextLabel = useDemo((s) => s.nextLabel)
 
@@ -75,9 +78,9 @@ export default function Playground() {
     ? `Next: ${nextLabel}`
     : phase === 'auto' || busy
       ? caption
-      : autoMode
-        ? 'Type as the customer on the phone, or reply from the inbox.'
-        : 'Send a message, then press Next to follow it step by step.'
+      : stepMode
+        ? 'Send a message, then press Next to follow it step by step.'
+        : 'Type as the customer on the phone, or reply from the inbox.'
 
   return (
     <div className="flex min-h-screen flex-col bg-surface lg:h-screen lg:overflow-hidden">
@@ -104,6 +107,10 @@ export default function Playground() {
               </>
             }
           >
+            <p className="mb-2 text-xs font-medium text-muted-foreground">Playback</p>
+            <Switch on={stepMode} onClick={() => setStepMode(!stepMode)} label="Step-by-step" />
+            <p className="mb-3 ml-11 text-[11px] text-muted-foreground">Each stage waits for you to press Next</p>
+            <div className="mb-3 h-px bg-border" />
             <p className="mb-2 text-xs font-medium text-muted-foreground">Reply extras</p>
             <div className="space-y-3">
               {FEATURES.map((f) => (

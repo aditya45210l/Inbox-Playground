@@ -1,7 +1,7 @@
 import { ChevronRight } from 'lucide-react'
-import { nextStep, setAutoMode, useDemo } from '../engine/store'
+import { nextStep, setAutoMode, setStepMode, useDemo } from '../engine/store'
 import { cn } from '../lib/cn'
-import { Button, Kbd } from './ui'
+import { Button, Kbd, Switch } from './ui'
 
 /** three little bars that bounce while something is playing */
 function PlayingBars({ active }: { active: boolean }) {
@@ -18,9 +18,13 @@ function PlayingBars({ active }: { active: boolean }) {
   )
 }
 
-/** "Auto-play" switch, plus a Next step button while the manual player is waiting */
-export function ModeControls() {
+/**
+ * Auto-play switch (plays the demo conversation by itself).
+ * When Step-by-step is on, a Next button appears and pulses while a stage is waiting.
+ */
+export function ModeControls({ withStepToggle = false }: { withStepToggle?: boolean }) {
   const autoMode = useDemo((s) => s.autoMode)
+  const stepMode = useDemo((s) => s.stepMode)
   const busy = useDemo((s) => s.busy)
   const waiting = useDemo((s) => s.waiting)
   const nextLabel = useDemo((s) => s.nextLabel)
@@ -31,7 +35,7 @@ export function ModeControls() {
         role="switch"
         aria-checked={autoMode}
         onClick={() => setAutoMode(!autoMode)}
-        title="On: messages move by themselves. Off: you move each step with Next (shortcut A)."
+        title="On: a demo conversation plays by itself. Off: you chat yourself (shortcut A)."
         className={cn(
           'relative inline-flex h-8 items-center gap-2 rounded-full border px-2.5 text-sm transition-colors',
           autoMode ? 'border-blue-500/40 bg-blue-500/10 text-foreground' : 'text-muted-foreground hover:text-foreground',
@@ -50,9 +54,12 @@ export function ModeControls() {
         <span className="font-medium">Auto-play</span>
         {autoMode && <PlayingBars active={busy} />}
       </button>
-      {!autoMode && (
+
+      {withStepToggle && <Switch on={stepMode} onClick={() => setStepMode(!stepMode)} label="Step-by-step" hint="Each stage waits for Next (shortcut S)" />}
+
+      {stepMode && (
         <span className="relative inline-flex">
-          {/* when a step is waiting, the radar pulse moves here so people know to click Next */}
+          {/* while a stage is waiting, the radar pulse moves here so people know to click Next */}
           {waiting && (
             <>
               <span className="pointer-events-none absolute inset-0 animate-radar-sm rounded-md border-2 border-blue-500/70" />
@@ -66,7 +73,7 @@ export function ModeControls() {
           </Button>
         </span>
       )}
-      {!autoMode && (
+      {stepMode && (
         <span className="hidden text-xs text-muted-foreground xl:inline">
           or press <Kbd>N</Kbd>
         </span>
