@@ -231,7 +231,7 @@ src/
 ## 🚀 Run it locally
 
 ```bash
-git clone https://github.com/<your-username>/inbox-playground.git
+git clone https://github.com/aditya45210l/Inbox-Playground.git
 cd inbox-playground
 npm install
 npm run dev          # → http://localhost:5173
